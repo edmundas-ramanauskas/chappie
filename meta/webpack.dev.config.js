@@ -13,7 +13,7 @@ var config = {
     port: 3000,
     host: '0.0.0.0'
   },
-  devtool: 'eval-source-map',
+  devtool: 'source-map',
   entry: [
 		'webpack/hot/only-dev-server',
     './src/index.jsx'
