@@ -5,6 +5,8 @@ import ContextMenu from "./menu"
 import Folder from "./folder"
 import { readDirectory } from "../../storage"
 
+import styles from "./styles.css"
+
 export default class File extends Component {
   constructor(props) {
     super(props)
@@ -27,7 +29,6 @@ export default class File extends Component {
       this.updateState({ expanded: false })
   }
   render() {
-    const textStyle = { display: 'inline-block', paddingLeft: '5px' }
     const icon = this.props.file.isDirectory
       ? this.props.file.expanded
         ? 'folder-open'
@@ -53,12 +54,13 @@ export default class File extends Component {
       this.updateState({ contextMenu: false })
     }
     return <tr>
-      <td style={{ width: '15px', textAlign: 'center', cursor: 'pointer' }}>
+      <td className={styles.expand}>
         {folder}
       </td>
       <td style={{ cursor: 'default' }}>
-        <div ref={this.props.file.path} style={{ position: 'relative', left: '-5px' }} onContextMenu={onContextMenuShow} onDoubleClick={onDoubleClick}>
-          <Glyphicon glyph={icon} /><span style={textStyle}>{this.props.file.name}</span>
+        <div ref={this.props.file.path} className={styles.file} onContextMenu={onContextMenuShow} onDoubleClick={onDoubleClick}>
+          <Glyphicon glyph={icon} />
+          <span className={styles.fileName}>{this.props.file.name}</span>
           {children}
         </div>
         <ContextMenu

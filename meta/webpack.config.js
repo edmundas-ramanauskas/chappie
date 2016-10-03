@@ -1,6 +1,7 @@
 var webpack = require('webpack');
 var path = require('path');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
+var ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 var config = {
   bail: true,
@@ -20,10 +21,7 @@ var config = {
       },
       {
         test: /\.css$/,
-        loaders: [
-          'style',
-          'css'
-        ]
+        loader: ExtractTextPlugin.extract('style-loader', 'css-loader?modules&importLoaders=1&localIdentName=[name]__[local]___[hash:base64:5]!postcss-loader')
       },
       {
         test: /\.(png|svg|gif)$/,
@@ -53,12 +51,16 @@ var config = {
       //   collapseWhitespace: true,
       //   removeComments: true
       // },
-		})
+		}),
     // new CopyWebpackPlugin([{
     //   from: '',
     //   to: ''
-    // }])
+    // }]),
+    new ExtractTextPlugin('styles.css', { allChunks: true }),
 	],
+  postcss: [
+    require('autoprefixer-core')
+  ],
   resolve: {
 		extensions: ['', '.js', '.jsx'],
     modulesDirectories: ['node_modules', 'src']

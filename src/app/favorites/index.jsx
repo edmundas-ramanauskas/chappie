@@ -10,11 +10,10 @@ export default class Favorites extends React.Component {
     this.props.onChangePath(path)
   }
   render() {
-    const style = {}
     return <Panel header="Favorites">
       <ListGroup fill>
         <ListGroupItem>
-          <a href="#" style={style} onClick={this.handleClick.bind(this, this.props.home)}>Home</a>
+          <a href="#" onClick={this.handleClick.bind(this, this.props.home)}>Home</a>
         </ListGroupItem>
     </ListGroup>
     </Panel>

@@ -6,6 +6,8 @@ import { joinPath, readDirectory, splitPath } from "../../storage"
 import cmd from "../../cmd"
 import Folder from "./folder"
 
+import styles from "./styles.css"
+
 export default class Viewer extends Component {
   constructor(props) {
     super(props)
@@ -76,14 +78,9 @@ export default class Viewer extends Component {
           </Breadcrumb.Item>
         })
       : null
-    const starStyle = {
-      cursor: 'pointer',
-      position: 'relative',
-      top: '2px',
-      marginLeft: '15px' }
     return <Breadcrumb>
       {items}
-      <Glyphicon glyph="star-empty" className="text-info" style={starStyle} />
+      <Glyphicon glyph="star-empty" className="text-info" className={styles.star} />
     </Breadcrumb>
   }
   handleAlertDismiss() {
@@ -108,18 +105,11 @@ export default class Viewer extends Component {
     this.updateState({ filter: null, focused: false })
   }
   renderFilter() {
-    const style = {
-      width: '400px',
-      position: 'absolute',
-      top: '3px',
-      left: '50%',
-      marginLeft: '-200px'
-    }
     const handleReference = (input) => {
       if(input && !this.state.filter) input.focus()
     }
     return this.state.filter !== null || this.state.focused
-      ? <div style={style}>
+      ? <div className={styles.filter}>
           <div className="form-group">
             <div className="input-group">
               <input ref={handleReference} type="search" className="form-control"
