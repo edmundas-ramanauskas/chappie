@@ -1,12 +1,12 @@
-import React from "react"
 import { Maybe } from "monet"
-import { Alert, Breadcrumb, Glyphicon, Table } from "react-bootstrap"
+import { Alert, Breadcrumb, Glyphicon } from "react-bootstrap"
 
+import Component from "../component"
 import { joinPath, readDirectory, splitPath } from "../../storage"
 import cmd from "../../cmd"
-import ContextMenu from "./menu"
+import Folder from "./folder"
 
-export default class Viewer extends React.Component {
+export default class Viewer extends Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -51,131 +51,17 @@ export default class Viewer extends React.Component {
       this.updateState({ path, files: Maybe.fromNull(files), filter: null, focused: false })
     })
   }
-  toggleFolder(file, paths) {
-    if(file.expanded) {
-      this.closeFolder(file, paths.concat([file.path]))
-      return
-    }
-    this.openFolder(file, paths.concat([file.path]))
-  }
-  closeFolder(file, paths) {
-    const files = this.state.files.map(items => {
-      return this.walkTree(items, paths, 0, (item) => {
-        return Object.assign({}, item, {
-          expanded: false
-        })
-      })
-    })
-    this.updateState({ files })
-  }
-  openFolder(file, paths) {
-    readDirectory(file.path, true).then(children => {
-      const files = this.state.files.map(items => {
-        return this.walkTree(items, paths, 0, (item) => {
-          return Object.assign({}, item, {
-            children,
-            expanded: true
-          })
-        })
-      })
-      this.updateState({ files })
-    }).catch(error => this.updateState({ error }))
-  }
-  walkTree(folder, paths, idx, callback) {
-    return folder.map(file => {
-      if(file.path === paths[idx]) {
-        if(paths.length === idx + 1) {
-          return callback(file)
-        } else
-          return Object.assign({}, file, {
-            children: this.walkTree(file.children, paths, idx + 1, callback)
-          })
-      }
-      return file
-    })
-  }
   updateState(state) {
     this.setState(Object.assign({}, this.state, state))
   }
-  showContextMenu(file, paths) {
-    const files = this.state.files.map(items => {
-      return this.walkTree(items, paths.concat([file.path]), 0, (item) => {
-        return Object.assign({}, item, {
-          contextMenu: true
-        })
-      })
-    })
-    this.updateState({ files })
-  }
-  hideContextMenu(file, paths) {
-    const files = this.state.files.map(items => {
-      return this.walkTree(items, paths.concat([file.path]), 0, (item) => {
-        return Object.assign({}, item, {
-          contextMenu: false
-        })
-      })
-    })
-    this.updateState({ files })
-  }
-  renderItem(file, index, paths) {
-    const style = index === 0 ? { borderTop: 'none' } : {}
-    const textStyle = { display: 'inline-block', paddingLeft: '5px' }
-    const rowClassName = this.state.selected === file.path ? 'warning' : ''
-    const icon = file.isDirectory
-      ? file.expanded
-        ? 'folder-open'
-        : 'folder-close'
-      : 'file'
-    const folderIcon = file.expanded ? 'triangle-bottom' : 'triangle-right'
-    const onClickExpand = () => {
-      this.toggleFolder(file, paths)
-    }
-    const folder = file.isDirectory ? <Glyphicon glyph={folderIcon} onClick={onClickExpand} /> : null
-    const children = file.children && file.children.length && file.expanded
-      ? this.renderList(Maybe.Some(file.children), paths.concat([ file.path ]))
-      : file.expanded
-        ? <div style={{ padding: '5px 5px 5px 18px' }}><i>Empty</i></div>
-        : null
-    const onDoubleClick = (e) => {
-      e.stopPropagation()
-      this.openFile(file)
-    }
-    const onContextMenuShow = (e) => {
-      e.preventDefault()
-      this.showContextMenu(file, paths)
-    }
-    const onContextMenuHide = () => {
-      this.hideContextMenu(file, paths)
-    }
-    return <tr key={file.name} className={rowClassName}>
-      <td style={Object.assign({}, style, { width: '15px', textAlign: 'center', cursor: 'pointer' })}>
-        {folder}
-      </td>
-      <td style={Object.assign({}, style, { cursor: 'default' })}>
-        <div ref={file.path} style={{ position: 'relative', left: '-5px' }} onContextMenu={onContextMenuShow} onDoubleClick={onDoubleClick}>
-          <Glyphicon glyph={icon} /><span style={textStyle}>{file.name}</span>
-          {children}
-        </div>
-        <ContextMenu
-          show={file.contextMenu}
-          target={this.refs[file.path]}
-          id={file.path}
-          onClose={onContextMenuHide}
-          outsideClickIgnoreClass="popover"
-          ></ContextMenu>
-      </td>
-    </tr>
-  }
-  renderList(maybeFiles, paths) {
-    const items = maybeFiles.map(files => {
-      return files.map((file, index) => this.renderItem(file, index, paths))
-    })
-    if(items.isNone()) {
+  renderList() {
+    const files = this.getFiles()
+    if(files.isNone()) {
       return <div>Loading...</div>
     }
-    return <Table responsive striped hover>
-      <tbody>{items.some()}</tbody>
-    </Table>
+    return <Folder
+      files={files.some()}
+      onFileOpen={file => this.openFile(file)} />
   }
   renderTitle() {
     const items = this.state.path
@@ -253,7 +139,7 @@ export default class Viewer extends React.Component {
       {this.renderFilter()}
       {this.renderTitle()}
       {this.renderError()}
-      {this.renderList(this.getFiles(), [])}
+      {this.renderList()}
     </div>
   }
 }

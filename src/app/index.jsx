@@ -2,8 +2,8 @@ import React from "react"
 import { Col, Grid, Row } from "react-bootstrap"
 import os from "os"
 
-import Favorites from './favorites'
-import Viewer from './viewer'
+import Favorites from "./favorites"
+import Viewer from "./viewer"
 
 export default class App extends React.Component {
   constructor(props) {
