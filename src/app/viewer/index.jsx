@@ -1,10 +1,10 @@
 import { Maybe } from "monet"
-import { Alert, Breadcrumb, Glyphicon } from "react-bootstrap"
+import { Alert, Breadcrumb, Glyphicon, Panel } from "react-bootstrap"
 
 import Component from "../component"
 import { joinPath, readDirectory, splitPath } from "../../storage"
 import cmd from "../../cmd"
-import Folder from "./folder"
+import Folder from "./list/folder"
 
 import styles from "./styles.css"
 
@@ -48,6 +48,10 @@ export default class Viewer extends Component {
       cmd.shell.launch(file.path)
     }
   }
+  deleteFile(file) {
+    console.log(this.state.files.some())
+    cmd.shell.remove(file.path)
+  }
   getFolderContent(path) {
     readDirectory(path, true).then(files => {
       this.updateState({ path, files: Maybe.fromNull(files), filter: null, focused: false })
@@ -61,9 +65,9 @@ export default class Viewer extends Component {
     if(files.isNone()) {
       return <div>Loading...</div>
     }
-    return <Folder
-      files={files.some()}
-      onFileOpen={file => this.openFile(file)} />
+    return <Folder files={files.some()}
+      onFileOpen={file => this.openFile(file)}
+      onFileDelete={file => this.deleteFile(file)} />
   }
   renderTitle() {
     const items = this.state.path
@@ -78,9 +82,10 @@ export default class Viewer extends Component {
           </Breadcrumb.Item>
         })
       : null
-    return <Breadcrumb>
+    return <Breadcrumb style={{ padding: '0' }}>
       {items}
-      <Glyphicon glyph="star-empty" className="text-info" className={styles.star} />
+      <Glyphicon glyph="star-empty" className={styles.star} />
+      <Glyphicon glyph="th-large" className="pull-right" />
     </Breadcrumb>
   }
   handleAlertDismiss() {
@@ -127,9 +132,10 @@ export default class Viewer extends Component {
   render() {
     return <div>
       {this.renderFilter()}
-      {this.renderTitle()}
       {this.renderError()}
-      {this.renderList()}
+      <Panel header={this.renderTitle()}>
+        {this.renderList()}
+      </Panel>
     </div>
   }
 }

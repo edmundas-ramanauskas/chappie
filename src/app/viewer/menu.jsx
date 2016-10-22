@@ -1,26 +1,37 @@
 import React from "react"
-import { Button, ButtonGroup, Overlay, Popover } from "react-bootstrap"
+import { Clearfix, MenuItem } from "react-bootstrap"
 import onClickOutside from "react-onclickoutside"
+
+import styles from "./styles.css"
+
+class Popover extends React.Component {
+  render() {
+    return <div id={this.props.id} className={styles.popover}>
+      <Clearfix className="open">
+        <ul className="dropdown-menu">
+          <MenuItem onSelect={this.props.onOpen}>Open</MenuItem>
+          <MenuItem onSelect={this.props.onDelete}>Delete</MenuItem>
+        </ul>
+      </Clearfix>
+    </div>
+  }
+}
 
 class ContextMenu extends React.Component {
   handleClickOutside() {
     this.props.onClose()
   }
   render() {
-    return <Overlay
-      show={this.props.show}
-      target={this.props.target}
-      placement="left"
-      container={this}
-      containerPadding={0}>
-      <Popover id={this.props.id}>
-        <ButtonGroup vertical block>
-          <Button>Button</Button>
-          <Button>Button</Button>
-        </ButtonGroup>
-      </Popover>
-    </Overlay>
+    return this.props.show
+      ? <Popover onOpen={this.props.onOpen} onDelete={this.props.onDelete}/>
+      : null
   }
 }
 
-export default onClickOutside(ContextMenu)
+const Wrapper = onClickOutside(ContextMenu)
+
+export default class ContextMenuWrapper extends React.Component {
+  render() {
+    return <Wrapper {...this.props} outsideClickIgnoreClass={styles.popover} />
+  }
+}

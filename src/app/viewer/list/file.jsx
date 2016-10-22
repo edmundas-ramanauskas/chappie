@@ -1,9 +1,9 @@
 import { Glyphicon } from "react-bootstrap"
 
-import Component from "../component"
-import ContextMenu from "./menu"
+import Component from "../../component"
+import ContextMenu from "../menu"
 import Folder from "./folder"
-import { readDirectory } from "../../storage"
+import { readDirectory } from "../../../storage"
 
 import styles from "./styles.css"
 
@@ -40,25 +40,37 @@ export default class File extends Component {
     }
     const folder = this.props.file.isDirectory ? <Glyphicon glyph={folderIcon} onClick={onClickExpand} /> : null
     const children = this.state.expanded
-      ? <Folder files={this.state.children} onFileOpen={(file) => this.props.onDoubleClick(file)} />
+      ? <Folder files={this.state.children}
+          onFileOpen={(file) => this.props.onFileOpen(file)}
+          onFileDelete={(file) => this.props.onFileDelete(file)}  />
       : null
     const onDoubleClick = (e) => {
       e.stopPropagation()
-      this.props.onDoubleClick(this.props.file)
+      this.props.onFileOpen(this.props.file)
     }
     const onContextMenuShow = (e) => {
       e.preventDefault()
+      e.stopPropagation()
       this.updateState({ contextMenu: true })
     }
     const onContextMenuHide = () => {
       this.updateState({ contextMenu: false })
     }
-    return <tr>
+    const onOpenFile = () => {
+      onContextMenuHide();
+      this.props.onFileOpen(this.props.file)
+    }
+    const onDeleteFile = () => {
+      onContextMenuHide();
+      this.props.onFileDelete(this.props.file)
+    }
+    const className = this.props.top ? styles.top : ''
+    return <tr className={className}>
       <td className={styles.expand}>
         {folder}
       </td>
-      <td style={{ cursor: 'default' }}>
-        <div ref={this.props.file.path} className={styles.file} onContextMenu={onContextMenuShow} onDoubleClick={onDoubleClick}>
+      <td style={{ position: 'relative', cursor: 'default' }} onContextMenu={onContextMenuShow}>
+        <div ref={this.props.file.path} className={styles.file} onDoubleClick={onDoubleClick}>
           <Glyphicon glyph={icon} />
           <span className={styles.fileName}>{this.props.file.name}</span>
           {children}
@@ -68,6 +80,8 @@ export default class File extends Component {
           target={this.refs[this.props.file.path]}
           id={this.props.file.path}
           onClose={onContextMenuHide}
+          onOpen={onOpenFile}
+          onDelete={onDeleteFile}
           outsideClickIgnoreClass="popover"
           ></ContextMenu>
       </td>
